@@ -51,7 +51,7 @@ body {
 /* Brand Styles */
 .brand {
   position: absolute;
-  top: 20px;
+  top: 60px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -294,6 +294,17 @@ button:disabled {
   
   .format-toggle-container {
     bottom: max(40px, env(safe-area-inset-bottom, 40px));
+  }
+}
+
+/* iPhone WebApp specific fixes */
+@supports (-webkit-touch-callout: none) {
+  #app {
+    height: 100vh; /* Use full viewport height for iPhone WebApp */
+  }
+  
+  .brand {
+    top: 80px; /* Even more space for brand on iPhone */
   }
 }
 

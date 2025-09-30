@@ -6,6 +6,16 @@ function setViewportHeight() {
   const vh = window.innerHeight * 0.01;
   document.documentElement.style.setProperty('--vh', `${vh}px`);
   
+  // iPhone WebApp fix - use full screen height
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  const isInWebApp = (window.navigator as any).standalone === true;
+  
+  if (isIOS && (isStandalone || isInWebApp)) {
+    // For iPhone WebApp, use 100vh for full screen
+    document.documentElement.style.setProperty('--vh', '1vh');
+  }
+  
   // Chrome mobile fix - add extra padding for browser UI
   const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
   const isMobile = window.innerWidth <= 768;
