@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>GRIMZ</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --fg:#e6e6e6;
+      --card:#0f172a;
+      --line:rgba(255,255,255,.35);
+      --shadow:0 10px 30px rgba(0,0,0,.45);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:#0b1020;
+      color:var(--fg);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .wrap{ width:100%; max-width:640px; padding:12px; display:flex; flex-direction:column; gap:12px; }
+    header{ text-align:center; }
+    .brand{
+      margin:2px 0 6px;
+      font-size:clamp(32px, 14vw, 64px);
+      font-weight:1000;
+      line-height:1.0;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      background: linear-gradient(90deg,#22c55e 0%,#3b82f6 33%,#a855f7 66%,#22c55e 100%);
+      background-size:200% 100%;
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      -webkit-text-fill-color:transparent;
+      animation: brandShift 8s ease-in-out infinite;
+      text-shadow:0 10px 30px rgba(34,197,94,.25);
+      filter: drop-shadow(0 6px 14px rgba(59,130,246,.18));
+    }
+    .brand::after{
+      content:"";
+      display:block;
+      width:min(60%, 220px);
+      height:4px;
+      margin:8px auto 0;
+      border-radius:999px;
+      background:linear-gradient(90deg,#22c55e,#3b82f6,#a855f7);
+      box-shadow:0 6px 18px rgba(168,85,247,.35);
+    }
+    @keyframes brandShift{ 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+
+    .card{ background:linear-gradient(180deg,#0f172a,#0b1327 70%); border:1px solid rgba(255,255,255,.08); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+    .stage{ position:relative; width:100%; aspect-ratio:3/4; background:#000; }
+    video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; transform: scaleX(-1); z-index:1; }
+    .captured{ position:absolute; inset:0; pointer-events:none; z-index:4; }
+    .cap{ position:absolute; left:0; right:0; width:100%; height:33.333%; object-fit:cover; display:none; }
+    .cap-top{ top:0; } .cap-mid{ top:33.333%; } .cap-bot{ top:66.666%; }
+    .overlay{ position:absolute; inset:0; pointer-events:none; z-index:3; }
+    .line{ position:absolute; left:0; right:0; height:1px; background:var(--line); }
+    .line:nth-child(1){ top:33.333%; } .line:nth-child(2){ top:66.666%; }
+    .mask{ position:absolute; inset:0; background:rgba(0,0,0,.35); -webkit-mask:var(--mask); mask:var(--mask); transition:.2s; }
+    #resultCanvas{ display:none; width:100%; height:auto; }
+    .controls{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    button{ appearance:none; border:0; border-radius:14px; padding:14px 12px; font-weight:900; font-size:1rem; color:#0b1020; background:#e5e7eb; }
+    .primary{ background:linear-gradient(180deg,#22c55e,#16a34a); color:#041007; }
+    .ghost{ background:linear-gradient(180deg,#cbd5e1,#94a3b8); }
+    .hidden{ display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header><div class="brand" aria-label="GRIMZ">GRIMZ</div></header>
+
+    <div class="card">
+      <div class="stage" id="stage">
+        <video id="video" playsinline autoplay muted></video>
+        <div class="captured">
+          <img id="capTop" class="cap cap-top" alt="">
+          <img id="capMid" class="cap cap-mid" alt="">
+          <img id="capBot" class="cap cap-bot" alt="">
+        </div>
+        <div class="overlay">
+          <div class="line"></div>
+          <div class="line"></div>
+          <div class="mask" id="mask"></div>
+        </div>
+      </div>
+      <canvas id="resultCanvas"></canvas>
+    </div>
+
+    <div id="controlsLive" class="controls">
+      <button id="btnStart" class="ghost">Kamera starten</button>
+      <button id="btnCapture" class="primary" disabled>Aufnahme</button>
+    </div>
+
+    <div id="controlsResult" class="controls hidden">
+      <button id="btnRestart" class="ghost">Neustart</button>
+      <button id="btnSave" class="primary">Speichern</button>
+    </div>
+  </div>
+
+  <canvas id="work" width="0" height="0" style="display:none"></canvas>
+
+  <script>
+    const el = (id)=>document.getElementById(id);
+    const video = el('video');
+    const stage = el('stage');
+    const resultCanvas = el('resultCanvas');
+    const work = el('work');
+    const maskEl = el('mask');
+    const capImgs = {1:el('capTop'),2:el('capMid'),3:el('capBot')};
+
+    const state = { step:1, stream:null, baseW:null, baseH:null, parts:{1:null,2:null,3:null} };
+
+    function setMaskForStep(){
+      const s = state.step;
+      const sliceStart = (s-1) * 33.333;
+      const sliceEnd = sliceStart + 33.334;
+      const maskCSS = `linear-gradient(#000 0, #000 ${sliceStart}%, transparent ${sliceStart}%, transparent ${sliceEnd}%, #000 ${sliceEnd}%, #000 100%)`;
+      maskEl.style.setProperty('--mask', maskCSS);
+    }
+
+    async function startCamera(){
+      try{
+        if(state.stream) stopCamera();
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio:false,
+          video:{ facingMode:'user', width:{ideal:1080}, height:{ideal:1440} }
+        });
+        state.stream = stream;
+        video.srcObject = stream;
+        await video.play();
+        el('btnCapture').disabled = false;
+      }catch(e){
+        alert('Kamera nicht verfügbar. Zugriff erlauben & Seite über https öffnen.');
+      }
+    }
+    function stopCamera(){
+      if(state.stream){ state.stream.getTracks().forEach(t=>t.stop()); state.stream=null; }
+      el('btnCapture').disabled = true;
+    }
+
+    function capture(){
+      if(!video.videoWidth || !video.videoHeight) return;
+      const vw = video.videoWidth, vh = video.videoHeight;
+      if(!state.baseW || !state.baseH){ state.baseW = vw; state.baseH = vh; }
+
+      // Frame gespiegelt in Arbeitsfläche
+      work.width = state.baseW; work.height = state.baseH;
+      const ctx = work.getContext('2d');
+      ctx.save(); ctx.translate(work.width,0); ctx.scale(-1,1);
+      ctx.drawImage(video,0,0,work.width,work.height);
+      ctx.restore();
+
+      // Drittel schneiden
+      const pieceH = Math.floor(work.height/3);
+      const sy = (state.step-1)*pieceH;
+      const piece = document.createElement('canvas');
+      piece.width = work.width; piece.height = pieceH;
+      piece.getContext('2d').drawImage(work,0,sy,work.width,pieceH,0,0,work.width,pieceH);
+      state.parts[state.step] = piece;
+
+      // Sofort anzeigen
+      const data = piece.toDataURL('image/jpeg', 0.92);
+      capImgs[state.step].src = data; capImgs[state.step].style.display='block';
+
+      if(state.step < 3){
+        state.step++; setMaskForStep();
+      }else{
+        assemble();
+        // Ergebnismodus
+        document.getElementById('controlsLive').classList.add('hidden');
+        document.getElementById('controlsResult').classList.remove('hidden');
+        stage.style.display='none'; resultCanvas.style.display='block';
+        stopCamera();
+      }
+    }
+
+    function assemble(){
+      const p1 = state.parts[1], p2 = state.parts[2], p3 = state.parts[3];
+      if(!(p1&&p2&&p3)) return;
+      const w = state.baseW, h = state.baseH, pieceH = Math.floor(h/3);
+      resultCanvas.width = w; resultCanvas.height = pieceH*3;
+      const ctx = resultCanvas.getContext('2d');
+      ctx.fillStyle='#000'; ctx.fillRect(0,0,w,pieceH*3);
+      ctx.drawImage(p1,0,0); ctx.drawImage(p2,0,pieceH); ctx.drawImage(p3,0,pieceH*2);
+
+      // --- Watermark "grimz" oben links einbrennen ---
+      drawWatermark(ctx, w, pieceH*3);
+    }
+
+    function drawWatermark(ctx, w, h){
+      const margin = Math.round(Math.min(w,h)*0.03);
+      const text = 'grimz';
+      const fontSize = Math.max(20, Math.round(w * 0.06)); // ~6% der Breite
+      ctx.save();
+      ctx.font = `900 ${fontSize}px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial`;
+      ctx.textBaseline = 'top';
+
+      // Box berechnen
+      const metrics = ctx.measureText(text);
+      const padX = Math.round(fontSize * 0.5);
+      const padY = Math.round(fontSize * 0.35);
+      const boxW = Math.ceil(metrics.width + padX*2);
+      const boxH = Math.ceil(fontSize + padY*1.2);
+      const x = margin;
+      const y = margin;
+
+      // Hintergrundbox (halbtransparent, runde Ecken)
+      ctx.globalAlpha = 0.65;
+      ctx.fillStyle = '#000';
+      roundRect(ctx, x, y, boxW, boxH, Math.min(16, Math.floor(boxH/2)));
+      ctx.fill();
+
+      // Text mit Farbverlauf
+      ctx.globalAlpha = 1.0;
+      const grad = ctx.createLinearGradient(x, y, x + boxW, y);
+      grad.addColorStop(0,   '#22c55e');
+      grad.addColorStop(0.5, '#3b82f6');
+      grad.addColorStop(1,   '#a855f7');
+      ctx.fillStyle = grad;
+
+      ctx.shadowColor = 'rgba(0,0,0,.35)';
+      ctx.shadowBlur = Math.round(fontSize*0.25);
+      ctx.fillText(text, x + padX, y + padY*0.4);
+      ctx.restore();
+    }
+
+    function roundRect(ctx, x, y, w, h, r){
+      const rr = Math.min(r, w/2, h/2);
+      ctx.beginPath();
+      ctx.moveTo(x+rr, y);
+      ctx.arcTo(x+w, y,   x+w, y+h, rr);
+      ctx.arcTo(x+w, y+h, x,   y+h, rr);
+      ctx.arcTo(x,   y+h, x,   y,   rr);
+      ctx.arcTo(x,   y,   x+w, y,   rr);
+      ctx.closePath();
+    }
+
+    function savePNG(){
+      if(!resultCanvas.width) return;
+      const saveWithBlob = ()=>{
+        resultCanvas.toBlob((blob)=>{
+          if(!blob){ fallbackDataUrl(); return; }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'GRIMZ.png';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(()=>URL.revokeObjectURL(url), 2000);
+        }, 'image/png');
+      };
+      const fallbackDataUrl = ()=>{
+        try{
+          const dataUrl = resultCanvas.toDataURL('image/png');
+          const a = document.createElement('a');
+          a.href = dataUrl; a.download = 'GRIMZ.png';
+          document.body.appendChild(a); a.click(); a.remove();
+          const newWin = window.open('', '_blank');
+          if(newWin){
+            const img = newWin.document.createElement('img');
+            img.src = dataUrl;
+            img.style = 'width:100%;height:auto;display:block;margin:0';
+            newWin.document.body.style = 'margin:0;background:#000;text-align:center;';
+            newWin.document.body.appendChild(img);
+          } else {
+            window.location.href = dataUrl;
+          }
+        }catch(e){}
+      };
+      if('toBlob' in HTMLCanvasElement.prototype) saveWithBlob(); else fallbackDataUrl();
+    }
+
+    function restart(){
+      state.step=1; state.baseW=state.baseH=null; state.parts={1:null,2:null,3:null};
+      ['capTop','capMid','capBot'].forEach(id=>{ const im = document.getElementById(id); im.src=''; im.style.display='none'; });
+      resultCanvas.style.display='none'; stage.style.display='block';
+      document.getElementById('controlsResult').classList.add('hidden');
+      document.getElementById('controlsLive').classList.remove('hidden');
+      setMaskForStep();
+    }
+
+    // Events
+    document.getElementById('btnStart').addEventListener('click', startCamera);
+    document.getElementById('btnCapture').addEventListener('click', capture);
+    document.getElementById('btnSave').addEventListener('click', savePNG);
+    document.getElementById('btnRestart').addEventListener('click', restart);
+
+    // Init
+    setMaskForStep();
+    document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stopCamera(); });
+    window.addEventListener('beforeunload', stopCamera);
+  </script>
+</body>
+</html>

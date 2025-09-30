@@ -1,0 +1,26 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a855f7;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="#000000" rx="200"/>
+  
+  <!-- Main text -->
+  <text x="512" y="600" font-family="system-ui, -apple-system, sans-serif" 
+        font-size="280" font-weight="900" text-anchor="middle" 
+        fill="url(#grad1)">GRIMZ</text>
+  
+  <!-- Decorative lines -->
+  <rect x="200" y="300" width="624" height="40" fill="url(#grad1)" rx="20"/>
+  <rect x="200" y="700" width="624" height="40" fill="url(#grad1)" rx="20"/>
+  
+  <!-- Camera icon elements -->
+  <circle cx="512" cy="400" r="80" fill="none" stroke="url(#grad1)" stroke-width="8"/>
+  <circle cx="512" cy="400" r="40" fill="url(#grad1)"/>
+  <rect x="480" y="320" width="64" height="40" fill="url(#grad1)" rx="8"/>
+</svg>
