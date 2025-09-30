@@ -186,7 +186,7 @@ body {
 /* Control Styles */
 .controls {
   position: absolute;
-  bottom: calc(max(40px, env(safe-area-inset-bottom, 40px)) + var(--chrome-padding, 0px));
+  bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + var(--chrome-padding, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -289,11 +289,11 @@ button:disabled {
 /* Chrome Mobile Fix */
 @supports (-webkit-appearance: none) {
   .controls {
-    bottom: max(60px, env(safe-area-inset-bottom, 60px));
+    bottom: max(40px, env(safe-area-inset-bottom, 40px));
   }
   
   .format-toggle-container {
-    bottom: max(60px, env(safe-area-inset-bottom, 60px));
+    bottom: max(40px, env(safe-area-inset-bottom, 40px));
   }
 }
 
@@ -306,11 +306,11 @@ button:disabled {
   
   .controls {
     gap: 8px;
-    bottom: max(50px, env(safe-area-inset-bottom, 50px));
+    bottom: max(30px, env(safe-area-inset-bottom, 30px));
   }
   
   .format-toggle-container {
-    bottom: max(50px, env(safe-area-inset-bottom, 50px));
+    bottom: max(30px, env(safe-area-inset-bottom, 30px));
   }
   
   button {
@@ -529,7 +529,7 @@ button:disabled::before {
 /* Format Toggle */
 .format-toggle-container {
   position: absolute;
-  bottom: calc(max(40px, env(safe-area-inset-bottom, 40px)) + var(--chrome-padding, 0px));
+  bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + var(--chrome-padding, 0px));
   left: max(20px, env(safe-area-inset-left, 20px));
   z-index: 10;
   margin: 0;
@@ -591,7 +591,7 @@ button:disabled::before {
 /* Result Controls - 3 buttons */
 #controlsResult .controls {
   position: absolute;
-  bottom: 20px;
+  bottom: 0px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
