@@ -87,6 +87,8 @@ npm run cap:run:android
 
 **Web-Version**: [https://grimz-photo-collage.vercel.app](https://grimz-photo-collage.vercel.app)
 
+**Status**: ✅ Vercel Deployment aktiviert
+
 ## 🤝 Contributing
 
 1. Fork das Repository
