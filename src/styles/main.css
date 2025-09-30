@@ -56,10 +56,11 @@ body {
   transform: translateX(-50%);
   z-index: 10;
   margin: 0;
+  font-family: 'Orbitron', 'Courier New', monospace;
   font-size: clamp(24px, 8vw, 48px);
-  font-weight: 1000;
+  font-weight: 900;
   line-height: 1.0;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 33%, var(--accent) 66%, var(--primary) 100%);
   background-size: 200% 100%;

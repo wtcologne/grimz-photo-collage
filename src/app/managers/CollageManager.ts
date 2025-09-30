@@ -190,7 +190,7 @@ export class CollageManager {
     const fontSize = Math.max(20, Math.round(width * 0.06));
 
     ctx.save();
-    ctx.font = `900 ${fontSize}px system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif`;
+    ctx.font = `900 ${fontSize}px 'Orbitron', 'Courier New', monospace`;
     ctx.textBaseline = 'top';
 
     // Calculate box dimensions
