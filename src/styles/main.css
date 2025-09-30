@@ -53,7 +53,7 @@ body {
 /* Brand Styles */
 .brand {
   position: absolute;
-  top: 30px;
+  top: 40px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -306,7 +306,7 @@ button:disabled {
   }
   
   .brand {
-    top: 40px; /* Adjusted for iPhone WebApp */
+    top: 50px; /* Adjusted for iPhone WebApp */
   }
 }
 
