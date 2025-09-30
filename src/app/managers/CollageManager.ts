@@ -186,12 +186,13 @@ export class CollageManager {
 
   private drawWatermark(ctx: CanvasRenderingContext2D, width: number, height: number): void {
     const margin = Math.round(Math.min(width, height) * 0.03);
-    const text = 'grimz';
+    const text = 'GRIMZ';
     const fontSize = Math.max(20, Math.round(width * 0.06));
 
     ctx.save();
     ctx.font = `900 ${fontSize}px 'Orbitron', 'Courier New', monospace`;
-    ctx.textBaseline = 'top';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
 
     // Calculate box dimensions
     const metrics = ctx.measureText(text);
@@ -199,18 +200,18 @@ export class CollageManager {
     const padY = Math.round(fontSize * 0.35);
     const boxWidth = Math.ceil(metrics.width + padX * 2);
     const boxHeight = Math.ceil(fontSize + padY * 1.2);
-    const x = margin;
-    const y = margin;
+    const x = margin + boxWidth / 2;
+    const y = margin + boxHeight / 2;
 
     // Draw background box
     ctx.globalAlpha = 0.65;
     ctx.fillStyle = '#000';
-    this.roundRect(ctx, x, y, boxWidth, boxHeight, Math.min(16, Math.floor(boxHeight / 2)));
+    this.roundRect(ctx, margin, margin, boxWidth, boxHeight, Math.min(16, Math.floor(boxHeight / 2)));
     ctx.fill();
 
     // Draw text with gradient
     ctx.globalAlpha = 1.0;
-    const gradient = ctx.createLinearGradient(x, y, x + boxWidth, y);
+    const gradient = ctx.createLinearGradient(margin, margin, margin + boxWidth, margin);
     gradient.addColorStop(0, '#22c55e');
     gradient.addColorStop(0.5, '#3b82f6');
     gradient.addColorStop(1, '#a855f7');
@@ -218,7 +219,7 @@ export class CollageManager {
 
     ctx.shadowColor = 'rgba(0,0,0,0.35)';
     ctx.shadowBlur = Math.round(fontSize * 0.25);
-    ctx.fillText(text, x + padX, y + padY * 0.4);
+    ctx.fillText(text, x, y);
     ctx.restore();
   }
 
