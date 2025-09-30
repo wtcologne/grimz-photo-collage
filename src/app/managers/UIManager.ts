@@ -106,7 +106,6 @@ export class UIManager {
       <div class="format-toggle-container">
         <button id="btnFormatToggle" class="format-toggle">
           <span class="toggle-text">2 Linien</span>
-          <span class="toggle-icon">↔</span>
         </button>
       </div>
 
@@ -502,17 +501,40 @@ export class UIManager {
 
   private updateFormatToggleState(format: CollageFormat): void {
     const toggle = document.getElementById('btnFormatToggle');
-    if (toggle) {
+    const textElement = toggle?.querySelector('.toggle-text') as HTMLElement;
+    
+    if (toggle && textElement) {
       // Remove existing state classes
       toggle.classList.remove('state-2lines', 'state-3lines');
       
       // Add new state class
       if (format === '2x1') {
         toggle.classList.add('state-2lines');
+        this.animateTextChange(textElement, '2 Linien');
       } else {
         toggle.classList.add('state-3lines');
+        this.animateTextChange(textElement, '3 Linien');
       }
     }
+  }
+
+  private animateTextChange(textElement: HTMLElement, newText: string): void {
+    // Add changing class for fade out
+    textElement.classList.add('changing');
+    
+    setTimeout(() => {
+      // Change text
+      textElement.textContent = newText;
+      
+      // Remove changing class and add new class for fade in
+      textElement.classList.remove('changing');
+      textElement.classList.add('new');
+      
+      // Remove new class after animation
+      setTimeout(() => {
+        textElement.classList.remove('new');
+      }, 300);
+    }, 150);
   }
 
   private handleResultFilterSelect(): void {
