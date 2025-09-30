@@ -162,6 +162,10 @@ export class UIManager {
     window.addEventListener('beforeunload', () => {
       this.cameraManager.stopCamera();
     });
+
+    // Initialize format toggle state
+    const state = this.stateManager.getState();
+    this.updateFormatToggleState(state.currentFormat);
   }
 
   private setupGestures(): void {
@@ -493,6 +497,22 @@ export class UIManager {
     
     this.stateManager.updateState({ currentFormat: newFormat });
     this.updateMask();
+    this.updateFormatToggleState(newFormat);
+  }
+
+  private updateFormatToggleState(format: CollageFormat): void {
+    const toggle = document.getElementById('btnFormatToggle');
+    if (toggle) {
+      // Remove existing state classes
+      toggle.classList.remove('state-2lines', 'state-3lines');
+      
+      // Add new state class
+      if (format === '2x1') {
+        toggle.classList.add('state-2lines');
+      } else {
+        toggle.classList.add('state-3lines');
+      }
+    }
   }
 
   private handleResultFilterSelect(): void {
