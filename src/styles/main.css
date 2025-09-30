@@ -185,7 +185,7 @@ body {
 /* Control Styles */
 .controls {
   position: absolute;
-  bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  bottom: calc(max(40px, env(safe-area-inset-bottom, 40px)) + var(--chrome-padding, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -285,6 +285,17 @@ button:disabled {
   display: none !important;
 }
 
+/* Chrome Mobile Fix */
+@supports (-webkit-appearance: none) {
+  .controls {
+    bottom: max(60px, env(safe-area-inset-bottom, 60px));
+  }
+  
+  .format-toggle-container {
+    bottom: max(60px, env(safe-area-inset-bottom, 60px));
+  }
+}
+
 /* Mobile Optimizations */
 @media (max-width: 480px) {
   #app {
@@ -294,6 +305,11 @@ button:disabled {
   
   .controls {
     gap: 8px;
+    bottom: max(50px, env(safe-area-inset-bottom, 50px));
+  }
+  
+  .format-toggle-container {
+    bottom: max(50px, env(safe-area-inset-bottom, 50px));
   }
   
   button {
@@ -512,7 +528,7 @@ button:disabled::before {
 /* Format Toggle */
 .format-toggle-container {
   position: absolute;
-  bottom: max(20px, env(safe-area-inset-bottom, 20px));
+  bottom: calc(max(40px, env(safe-area-inset-bottom, 40px)) + var(--chrome-padding, 0px));
   left: max(20px, env(safe-area-inset-left, 20px));
   z-index: 10;
   margin: 0;
