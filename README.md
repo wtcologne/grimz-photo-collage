@@ -83,6 +83,10 @@ npm run cap:run:android
 
 © 2024 GRIMZ. Alle Rechte vorbehalten.
 
+## 🚀 Live Demo
+
+**Web-Version**: [https://grimz-photo-collage.vercel.app](https://grimz-photo-collage.vercel.app)
+
 ## 🤝 Contributing
 
 1. Fork das Repository
