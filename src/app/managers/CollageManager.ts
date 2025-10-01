@@ -206,17 +206,17 @@ export class CollageManager {
     const boxWidth = Math.ceil(metrics.width + padX * 2);
     const boxHeight = Math.ceil(fontSize + padY * 1.2);
     const x = margin + boxWidth / 2;
-    const y = margin + boxHeight / 2;
+    const y = margin + boxHeight / 2 + 25; // Move watermark 25px down
 
     // Draw background box
     ctx.globalAlpha = 0.65;
     ctx.fillStyle = '#000';
-    this.roundRect(ctx, margin, margin, boxWidth, boxHeight, Math.min(16, Math.floor(boxHeight / 2)));
+    this.roundRect(ctx, margin, margin + 25, boxWidth, boxHeight, Math.min(16, Math.floor(boxHeight / 2)));
     ctx.fill();
 
     // Draw text with gradient
     ctx.globalAlpha = 1.0;
-    const gradient = ctx.createLinearGradient(margin, margin, margin + boxWidth, margin);
+    const gradient = ctx.createLinearGradient(margin, margin + 25, margin + boxWidth, margin + 25);
     gradient.addColorStop(0, '#22c55e');
     gradient.addColorStop(0.5, '#3b82f6');
     gradient.addColorStop(1, '#a855f7');
