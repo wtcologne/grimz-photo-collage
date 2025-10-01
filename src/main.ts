@@ -16,14 +16,30 @@ function setViewportHeight() {
     document.documentElement.style.setProperty('--vh', '1vh');
   }
   
-  // Chrome mobile fix - add extra padding for browser UI
+  // Chrome detection and viewport scaling
   const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
   const isMobile = window.innerWidth <= 768;
   
-  if (isChrome && isMobile) {
-    document.documentElement.style.setProperty('--chrome-padding', '20px');
+  if (isChrome) {
+    // Chrome-specific viewport scaling to reduce image area
+    const scaleFactor = isMobile ? 0.85 : 0.9; // Smaller scale for mobile Chrome, slightly smaller for desktop
+    document.documentElement.style.setProperty('--chrome-scale', scaleFactor.toString());
+    document.documentElement.style.setProperty('--chrome-padding', isMobile ? '20px' : '10px');
+    
+    // Add Chrome-specific class for CSS targeting
+    document.body.classList.add(isMobile ? 'chrome-mobile' : 'chrome-desktop');
+    
+    // Apply scaling to the main app container
+    const app = document.getElementById('app');
+    if (app) {
+      app.style.transform = `scale(${scaleFactor})`;
+      app.style.transformOrigin = 'center center';
+    }
   } else {
+    document.documentElement.style.setProperty('--chrome-scale', '1');
     document.documentElement.style.setProperty('--chrome-padding', '0px');
+    // Remove Chrome classes if not Chrome
+    document.body.classList.remove('chrome-mobile', 'chrome-desktop');
   }
 }
 

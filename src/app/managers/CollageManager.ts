@@ -51,8 +51,13 @@ export class CollageManager {
     }
 
     // Create canvas with viewport dimensions (full height)
+    // Apply Chrome-specific scaling if detected
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    const isMobile = window.innerWidth <= 768;
+    const chromeScale = isChrome ? (isMobile ? 0.85 : 0.9) : 1;
+    
     const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    const viewportHeight = Math.floor(window.innerHeight * chromeScale);
     
     const canvas = document.createElement('canvas');
     canvas.width = viewportWidth;

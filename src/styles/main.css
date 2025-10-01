@@ -299,6 +299,51 @@ button:disabled {
   }
 }
 
+/* Chrome-specific viewport adjustments */
+#app {
+  transition: transform 0.3s ease;
+}
+
+/* Chrome desktop scaling */
+@media screen and (min-width: 769px) {
+  .chrome-desktop #app {
+    transform: scale(0.9);
+    transform-origin: center center;
+  }
+}
+
+/* Chrome mobile scaling */
+@media screen and (max-width: 768px) {
+  .chrome-mobile #app {
+    transform: scale(0.85);
+    transform-origin: center center;
+  }
+}
+
+/* Alternative Chrome fix - adjust image area specifically */
+.chrome-desktop .stage,
+.chrome-mobile .stage {
+  /* Reduce the effective viewport used for image scaling */
+  height: calc(100vh * var(--chrome-scale, 1));
+  max-height: calc(100vh * var(--chrome-scale, 1));
+}
+
+/* Chrome-specific canvas adjustments */
+.chrome-desktop .result-canvas,
+.chrome-mobile .result-canvas {
+  /* Ensure result canvas respects Chrome scaling */
+  max-height: calc(100vh * var(--chrome-scale, 1));
+  object-fit: contain; /* Change from cover to contain for Chrome */
+}
+
+/* Chrome video adjustments */
+.chrome-desktop .video,
+.chrome-mobile .video {
+  /* Adjust video scaling for Chrome */
+  transform: scaleX(-1) scale(var(--chrome-scale, 1));
+  transform-origin: center center;
+}
+
 /* iPhone WebApp specific fixes */
 @supports (-webkit-touch-callout: none) {
   #app {
