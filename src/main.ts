@@ -22,7 +22,7 @@ function setViewportHeight() {
   
   if (isChrome) {
     // Chrome-specific viewport scaling to reduce image area
-    const scaleFactor = isMobile ? 0.85 : 0.9; // Smaller scale for mobile Chrome, slightly smaller for desktop
+    const scaleFactor = isMobile ? 0.75 : 0.9; // Much smaller scale for mobile Chrome, slightly smaller for desktop
     document.documentElement.style.setProperty('--chrome-scale', scaleFactor.toString());
     document.documentElement.style.setProperty('--chrome-padding', isMobile ? '20px' : '10px');
     

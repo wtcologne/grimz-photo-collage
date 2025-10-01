@@ -54,7 +54,7 @@ export class CollageManager {
     // Apply Chrome-specific scaling if detected
     const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
     const isMobile = window.innerWidth <= 768;
-    const chromeScale = isChrome ? (isMobile ? 0.85 : 0.9) : 1;
+    const chromeScale = isChrome ? (isMobile ? 0.75 : 0.9) : 1;
     
     const viewportWidth = window.innerWidth;
     const viewportHeight = Math.floor(window.innerHeight * chromeScale);
