@@ -3,7 +3,6 @@ import { CollageManager } from './managers/CollageManager';
 import { UIManager } from './managers/UIManager';
 import { StateManager } from './managers/StateManager';
 import { MobileManager } from './mobile/MobileManager';
-import { AudioManager } from './managers/AudioManager';
 
 export class App {
   private cameraManager: CameraManager;
@@ -11,14 +10,12 @@ export class App {
   private uiManager: UIManager;
   private stateManager: StateManager;
   private mobileManager: MobileManager;
-  private audioManager: AudioManager;
 
   constructor() {
     this.stateManager = new StateManager();
     this.cameraManager = new CameraManager();
     this.collageManager = new CollageManager();
-    this.audioManager = new AudioManager();
-    this.uiManager = new UIManager(this.stateManager, this.cameraManager, this.collageManager, this.audioManager);
+    this.uiManager = new UIManager(this.stateManager, this.cameraManager, this.collageManager);
     this.mobileManager = MobileManager.getInstance();
     
     this.initialize();

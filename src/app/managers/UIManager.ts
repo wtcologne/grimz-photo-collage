@@ -1,7 +1,6 @@
 import { StateManager, AppState } from './StateManager';
 import { CameraManager } from './CameraManager';
 import { CollageManager } from './CollageManager';
-import { AudioManager } from './AudioManager';
 import { Toast } from '../components/Toast';
 import { LoadingSpinner } from '../components/LoadingSpinner';
 import { GestureHandler } from '../components/GestureHandler';
@@ -14,7 +13,6 @@ export class UIManager {
   private stateManager: StateManager;
   private cameraManager: CameraManager;
   private collageManager: CollageManager;
-  private audioManager: AudioManager;
   private unsubscribe: (() => void) | null = null;
 
   // DOM Elements
@@ -39,11 +37,10 @@ export class UIManager {
   // Selectors
   private filterSelector: FilterSelector | null = null;
 
-  constructor(stateManager: StateManager, cameraManager: CameraManager, collageManager: CollageManager, audioManager: AudioManager) {
+  constructor(stateManager: StateManager, cameraManager: CameraManager, collageManager: CollageManager) {
     this.stateManager = stateManager;
     this.cameraManager = cameraManager;
     this.collageManager = collageManager;
-    this.audioManager = audioManager;
   }
 
   async initialize(): Promise<void> {
@@ -55,9 +52,6 @@ export class UIManager {
     // Initialize managers
     this.cameraManager.setStateManager(this.stateManager);
     this.collageManager.setStateManager(this.stateManager);
-    
-    // Initialize audio
-    await this.audioManager.enableAudio();
     
     // Initialize components
     Toast.init();
@@ -82,7 +76,7 @@ export class UIManager {
       LoadingSpinner.hide('camera');
     } catch (error) {
       LoadingSpinner.hide('camera');
-      await this.showError(error instanceof Error ? error.message : 'Kamera-Fehler');
+      this.showError(error instanceof Error ? error.message : 'Kamera-Fehler');
     }
   }
 
@@ -245,9 +239,6 @@ export class UIManager {
       // Haptic feedback for capture
       MobileManager.getInstance().vibrateCapture();
       
-      // Play shutter sound
-      await this.audioManager.playShutterSound();
-      
       this.stateManager.updateState({ isProcessing: true });
 
       const fullFrame = this.cameraManager.captureFrame();
@@ -301,7 +292,7 @@ export class UIManager {
       }
 
     } catch (error) {
-      await this.showError(error instanceof Error ? error.message : 'Aufnahme-Fehler');
+      this.showError(error instanceof Error ? error.message : 'Aufnahme-Fehler');
     } finally {
       this.stateManager.updateState({ isProcessing: false });
     }
@@ -312,9 +303,6 @@ export class UIManager {
     if (!collage) {
       throw new Error('Collage assembly failed');
     }
-
-    // Play success sound
-    await this.audioManager.playSuccessSound();
 
     // Show result
     if (this.resultCanvas) {
@@ -361,7 +349,7 @@ export class UIManager {
       MobileManager.getInstance().vibrateSuccess();
     } catch (error) {
       LoadingSpinner.hide('save');
-      await this.showError(error instanceof Error ? error.message : 'Speichern-Fehler');
+      this.showError(error instanceof Error ? error.message : 'Speichern-Fehler');
     }
   }
 
@@ -441,12 +429,9 @@ export class UIManager {
     });
   }
 
-  private async showError(message: string): Promise<void> {
+  private showError(message: string): void {
     // Haptic feedback for errors
     MobileManager.getInstance().vibrateError();
-    
-    // Play error sound
-    await this.audioManager.playErrorSound();
     
     this.showToast('error', message);
     // Add shake animation to relevant elements
