@@ -403,7 +403,6 @@ export class UIManager {
       
       // Remove the last captured slice (highest step number)
       const stepToRemove = capturedSteps[0];
-      const previousStep = stepToRemove - 1;
       
       // Remove the captured image for the step we're removing
       if (this.capturedImages[stepToRemove]) {
@@ -643,36 +642,6 @@ export class UIManager {
     }
   }
 
-  private async updateCapturedImagesDisplay(format: CollageFormat, parts: { [key: number]: HTMLCanvasElement | null }): Promise<void> {
-    const capturedContainer = document.getElementById('captured');
-    if (!capturedContainer) return;
-
-    // Remove all existing captured images
-    Object.keys(this.capturedImages).forEach(key => {
-      const img = this.capturedImages[parseInt(key)];
-      if (img && img.parentNode) {
-        img.parentNode.removeChild(img);
-      }
-    });
-    this.capturedImages = {};
-
-    // Re-add captured images based on new format
-    const { COLLAGE_LAYOUTS } = await import('../types/CollageTypes');
-    const layout = COLLAGE_LAYOUTS[format];
-
-    for (const key of Object.keys(parts)) {
-      const step = parseInt(key);
-      const part = parts[step];
-      if (part) {
-        const dataUrl = part.toDataURL('image/jpeg', 0.92);
-        try {
-          await this.createCapturedImage(step, dataUrl);
-        } catch (err) {
-          console.error('Failed to update captured image:', err);
-        }
-      }
-    }
-  }
 
   private updateFormatToggleState(format: CollageFormat): void {
     const toggle = document.getElementById('btnFormatToggle');
