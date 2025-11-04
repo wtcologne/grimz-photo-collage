@@ -223,7 +223,7 @@ body {
 /* Control Styles - Modern Apple-like Design */
 .controls {
   position: absolute;
-  bottom: calc(max(80px, env(safe-area-inset-bottom, 80px)) + var(--chrome-padding, 0px));
+  bottom: calc(max(140px, env(safe-area-inset-bottom, 140px)) + var(--chrome-padding, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -402,7 +402,7 @@ button:disabled {
 /* Chrome Mobile Fix */
 @supports (-webkit-appearance: none) {
   .controls {
-    bottom: max(80px, env(safe-area-inset-bottom, 80px));
+    bottom: max(140px, env(safe-area-inset-bottom, 140px));
   }
 }
 
@@ -471,7 +471,7 @@ button:disabled {
   
   .controls {
     gap: 12px;
-    bottom: max(60px, env(safe-area-inset-bottom, 60px));
+    bottom: max(120px, env(safe-area-inset-bottom, 120px));
   }
   
   #controlsLive {
