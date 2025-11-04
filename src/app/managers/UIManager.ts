@@ -26,6 +26,8 @@ export class UIManager {
   private btnCapture: HTMLButtonElement | null = null;
   private btnRestart: HTMLButtonElement | null = null;
   private btnSave: HTMLButtonElement | null = null;
+  private btnUndo: HTMLButtonElement | null = null;
+  private btnCameraSwitch: HTMLButtonElement | null = null;
 
   // Control containers
   private controlsLive: HTMLElement | null = null;
@@ -102,16 +104,19 @@ export class UIManager {
         <canvas id="resultCanvas" class="result-canvas"></canvas>
       </div>
 
-      <!-- Format Toggle -->
-      <div class="format-toggle-container">
-        <button id="btnFormatToggle" class="format-toggle">
+      <div id="controlsLive" class="controls">
+        <button id="btnFormatToggle" class="format-toggle-inline">
           <span class="toggle-text">2 Linien</span>
         </button>
+        <button id="btnUndo" class="ghost" disabled style="display: none;">Zurück</button>
+        <button id="btnCameraSwitch" class="camera-switch-bottom" aria-label="Kamera wechseln" title="Kamera wechseln">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
+            <circle cx="12" cy="13" r="3"/>
+          </svg>
+        </button>
+        <button id="btnCapture" class="primary" disabled>Aufnahme</button>
       </div>
-
-          <div id="controlsLive" class="controls">
-            <button id="btnCapture" class="primary" disabled>Aufnahme</button>
-          </div>
 
       <div id="controlsResult" class="controls hidden">
         <button id="btnRestart" class="ghost">Neustart</button>
@@ -133,6 +138,8 @@ export class UIManager {
         this.btnCapture = document.getElementById('btnCapture') as HTMLButtonElement;
         this.btnRestart = document.getElementById('btnRestart') as HTMLButtonElement;
         this.btnSave = document.getElementById('btnSave') as HTMLButtonElement;
+        this.btnUndo = document.getElementById('btnUndo') as HTMLButtonElement;
+        this.btnCameraSwitch = document.getElementById('btnCameraSwitch') as HTMLButtonElement;
 
     this.controlsLive = document.getElementById('controlsLive');
     this.controlsResult = document.getElementById('controlsResult');
@@ -146,9 +153,16 @@ export class UIManager {
     this.btnCapture?.addEventListener('click', () => this.handleCapture());
     this.btnRestart?.addEventListener('click', () => this.handleRestart());
     this.btnSave?.addEventListener('click', () => this.handleSave());
+    this.btnUndo?.addEventListener('click', () => this.handleUndo());
+    this.btnCameraSwitch?.addEventListener('click', () => this.handleCameraSwitch());
 
-    // Format toggle
-    document.getElementById('btnFormatToggle')?.addEventListener('click', () => this.handleFormatToggle());
+    // Format toggle - simple toggle between 2x1 and 3x1
+    document.getElementById('btnFormatToggle')?.addEventListener('click', () => {
+      this.handleFormatToggle().catch(err => {
+        console.error('Format toggle error:', err);
+        this.showError('Format-Änderung fehlgeschlagen');
+      });
+    });
     document.getElementById('btnResultFilter')?.addEventListener('click', () => this.handleResultFilterSelect());
 
     // Handle visibility changes
@@ -217,6 +231,19 @@ export class UIManager {
       this.btnCapture?.classList.remove('loading');
     }
 
+    // Update undo button visibility and state
+    if (this.btnUndo) {
+      const hasCapturedParts = Object.keys(state.parts).length > 0;
+      const canUndo = state.step > 1 && hasCapturedParts;
+      
+      if (canUndo) {
+        this.btnUndo.style.display = 'block';
+        this.btnUndo.disabled = state.isProcessing;
+      } else {
+        this.btnUndo.style.display = 'none';
+      }
+    }
+
     // Update format toggle
     this.updateFormatToggle(state);
   }
@@ -227,6 +254,16 @@ export class UIManager {
     
     if (toggleText) {
       toggleText.textContent = state.currentFormat === '2x1' ? '2 Linien' : '3 Linien';
+    }
+    
+    // Update toggle state classes
+    if (toggleBtn) {
+      toggleBtn.classList.remove('state-2lines', 'state-3lines');
+      if (state.currentFormat === '2x1') {
+        toggleBtn.classList.add('state-2lines');
+      } else {
+        toggleBtn.classList.add('state-3lines');
+      }
     }
   }
 
@@ -328,12 +365,6 @@ export class UIManager {
       this.controlsResult.classList.remove('hidden');
     }
 
-    // Hide format toggle when collage is finished
-    const formatToggleContainer = document.querySelector('.format-toggle-container');
-    if (formatToggleContainer) {
-      formatToggleContainer.classList.add('hidden');
-    }
-
     this.cameraManager.stopCamera();
   }
 
@@ -350,6 +381,87 @@ export class UIManager {
     } catch (error) {
       LoadingSpinner.hide('save');
       this.showError(error instanceof Error ? error.message : 'Speichern-Fehler');
+    }
+  }
+
+  private async handleUndo(): Promise<void> {
+    const state = this.stateManager.getState();
+    // Can only undo if we have at least one captured part and are beyond step 1
+    if (state.step <= 1 || state.isProcessing || Object.keys(state.parts).length === 0) return;
+
+    try {
+      // Haptic feedback
+      MobileManager.getInstance().vibrateCapture();
+      
+      // Find the highest step number that was captured (the last one)
+      const capturedSteps = Object.keys(state.parts)
+        .map(key => parseInt(key))
+        .filter(step => state.parts[step] !== null)
+        .sort((a, b) => b - a); // Sort descending to get highest first
+      
+      if (capturedSteps.length === 0) return;
+      
+      // Remove the last captured slice (highest step number)
+      const stepToRemove = capturedSteps[0];
+      const previousStep = stepToRemove - 1;
+      
+      // Remove the captured image for the step we're removing
+      if (this.capturedImages[stepToRemove]) {
+        const img = this.capturedImages[stepToRemove];
+        if (img.parentNode) {
+          img.parentNode.removeChild(img);
+        }
+        delete this.capturedImages[stepToRemove];
+      }
+
+      // Remove the part from state
+      const newParts = { ...state.parts };
+      delete newParts[stepToRemove as keyof typeof newParts];
+
+      // Update state - go back to the step after the last remaining captured step
+      // If we removed step 3, we should be at step 3 (ready to capture step 3 again)
+      // But if we removed step 2 and step 1 exists, we should be at step 2
+      const remainingSteps = Object.keys(newParts)
+        .map(key => parseInt(key))
+        .filter(step => newParts[step] !== null)
+        .sort((a, b) => b - a);
+      
+      const newStep = remainingSteps.length > 0 
+        ? remainingSteps[0] + 1  // Next step after the highest remaining step
+        : 1; // If no steps remain, go back to step 1
+
+      this.stateManager.updateState({
+        step: newStep,
+        parts: newParts
+      });
+
+      // Update mask to show current step
+      this.updateMask();
+
+      this.showToast('info', 'Schritt rückgängig gemacht');
+    } catch (error) {
+      this.showError(error instanceof Error ? error.message : 'Undo-Fehler');
+    }
+  }
+
+  private async handleCameraSwitch(): Promise<void> {
+    const state = this.stateManager.getState();
+    if (state.isProcessing) return;
+
+    try {
+      LoadingSpinner.show('camera', 'Kamera wird gewechselt...');
+      await this.cameraManager.switchCamera();
+      LoadingSpinner.hide('camera');
+      
+      // Haptic feedback
+      MobileManager.getInstance().vibrateSuccess();
+      
+      const facingMode = this.cameraManager.getCurrentFacingMode();
+      const modeText = facingMode === 'user' ? 'Frontkamera' : 'Rückkamera';
+      this.showToast('success', `${modeText} aktiviert`);
+    } catch (error) {
+      LoadingSpinner.hide('camera');
+      this.showError(error instanceof Error ? error.message : 'Kamera-Wechsel fehlgeschlagen');
     }
   }
 
@@ -378,12 +490,6 @@ export class UIManager {
 
     if (this.controlsLive) {
       this.controlsLive.classList.remove('hidden');
-    }
-
-    // Show format toggle again when restarting
-    const formatToggleContainer = document.querySelector('.format-toggle-container');
-    if (formatToggleContainer) {
-      formatToggleContainer.classList.remove('hidden');
     }
 
     this.updateMask();
@@ -490,13 +596,82 @@ export class UIManager {
     this.capturedImages[step] = img;
   }
 
-  private handleFormatToggle(): void {
+  private async handleFormatToggle(): Promise<void> {
     const state = this.stateManager.getState();
     const newFormat: CollageFormat = state.currentFormat === '2x1' ? '3x1' : '2x1';
     
-    this.stateManager.updateState({ currentFormat: newFormat });
-    this.updateMask();
-    this.updateFormatToggleState(newFormat);
+    // If format hasn't changed, do nothing
+    if (state.currentFormat === newFormat) return;
+
+    // If there are captured parts, reset everything (start from beginning)
+    if (Object.keys(state.parts).length > 0) {
+      // Reset all captured images
+      Object.values(this.capturedImages).forEach(img => {
+        if (img && img.parentNode) {
+          img.parentNode.removeChild(img);
+        }
+      });
+      this.capturedImages = {};
+
+      // Reset state - start from beginning with new format
+      this.stateManager.updateState({
+        currentFormat: newFormat,
+        parts: {},
+        step: 1,
+        baseWidth: null,
+        baseHeight: null
+      });
+
+      // Update mask for new format
+      this.updateMask();
+
+      // Update format toggle UI
+      this.updateFormatToggleState(newFormat);
+
+      this.showToast('info', 'Format geändert - Aufnahme von vorne begonnen');
+    } else {
+      // No captured parts yet, just change format
+      this.stateManager.updateState({
+        currentFormat: newFormat
+      });
+
+      // Update format toggle UI
+      this.updateFormatToggleState(newFormat);
+
+      // Update mask for new format
+      this.updateMask();
+    }
+  }
+
+  private async updateCapturedImagesDisplay(format: CollageFormat, parts: { [key: number]: HTMLCanvasElement | null }): Promise<void> {
+    const capturedContainer = document.getElementById('captured');
+    if (!capturedContainer) return;
+
+    // Remove all existing captured images
+    Object.keys(this.capturedImages).forEach(key => {
+      const img = this.capturedImages[parseInt(key)];
+      if (img && img.parentNode) {
+        img.parentNode.removeChild(img);
+      }
+    });
+    this.capturedImages = {};
+
+    // Re-add captured images based on new format
+    const { COLLAGE_LAYOUTS } = await import('../types/CollageTypes');
+    const layout = COLLAGE_LAYOUTS[format];
+
+    for (const key of Object.keys(parts)) {
+      const step = parseInt(key);
+      const part = parts[step];
+      if (part) {
+        const dataUrl = part.toDataURL('image/jpeg', 0.92);
+        try {
+          await this.createCapturedImage(step, dataUrl);
+        } catch (err) {
+          console.error('Failed to update captured image:', err);
+        }
+      }
+    }
   }
 
   private updateFormatToggleState(format: CollageFormat): void {

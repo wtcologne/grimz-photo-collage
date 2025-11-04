@@ -1,13 +1,47 @@
 :root {
+  /* Base Colors */
   --bg: #0b1020;
   --fg: #e6e6e6;
   --card: #0f172a;
   --line: rgba(255, 255, 255, 0.35);
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-  --radius: 18px;
   --primary: #22c55e;
   --secondary: #3b82f6;
   --accent: #a855f7;
+  
+  /* Glassmorphism Design Tokens */
+  --glass-bg-light: rgba(255, 255, 255, 0.05);
+  --glass-bg-medium: rgba(255, 255, 255, 0.08);
+  --glass-bg-heavy: rgba(255, 255, 255, 0.12);
+  --glass-bg-dark: rgba(0, 0, 0, 0.3);
+  
+  --glass-blur-sm: blur(10px);
+  --glass-blur-md: blur(20px);
+  --glass-blur-lg: blur(30px);
+  
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-strong: rgba(255, 255, 255, 0.2);
+  
+  /* Shadow Levels */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px rgba(34, 197, 94, 0.3);
+  --shadow-glow-strong: 0 0 30px rgba(34, 197, 94, 0.5);
+  
+  /* Border Radius */
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+  
+  /* Transitions */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Legacy (for compatibility) */
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --radius: 18px;
 }
 
 * {
@@ -50,7 +84,7 @@ body {
   overflow: hidden;
 }
 
-/* Brand Styles */
+/* Brand Styles - Liquid Glass */
 .brand {
   position: absolute;
   top: 40px;
@@ -64,27 +98,28 @@ body {
   line-height: 1.0;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 33%, var(--accent) 66%, var(--primary) 100%);
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  backdrop-filter: var(--glass-blur-sm);
+  background-color: var(--glass-bg-dark);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  transition: all var(--transition-smooth);
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background-image: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 33%, var(--accent) 66%, var(--primary) 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
   animation: brandShift 8s ease-in-out infinite;
-  text-shadow: none;
-  filter: none;
 }
 
-.brand::after {
-  content: "";
-  display: block;
-  width: min(60%, 220px);
-  height: 4px;
-  margin: 8px auto 0;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
-  box-shadow: 0 6px 18px rgba(168, 85, 247, 0.35);
+.brand:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-glow-strong);
+  transform: translateX(-50%) translateY(-2px);
+  border-color: var(--glass-border-strong);
 }
+
 
 @keyframes brandShift {
   0%, 100% { background-position: 0% 50%; }
@@ -185,50 +220,44 @@ body {
   background: #000;
 }
 
-/* Control Styles */
+/* Control Styles - Modern Apple-like Design */
 .controls {
   position: absolute;
-  bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + var(--chrome-padding, 0px));
+  bottom: calc(max(24px, env(safe-area-inset-bottom, 24px)) + var(--chrome-padding, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 0;
+  gap: 16px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transition: all var(--transition-smooth);
 }
 
-/* Shutter Button */
+#controlsLive {
+  gap: 20px;
+}
+
+/* Shutter Button - Modern Apple Design */
 #btnCapture {
-  width: 80px;
-  height: 80px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.5); /* Sehr dünner Rand */
-  color: #000;
+  background: rgba(255, 255, 255, 0.95);
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  color: var(--fg);
   font-size: 0;
   padding: 0;
   position: relative;
   cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-#btnCapture:hover {
-  transform: scale(1.1);
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
-}
-
-#btnCapture:active {
-  transform: scale(0.95);
-}
-
-#btnCapture:disabled {
-  background: rgba(255, 255, 255, 0.3);
-  cursor: not-allowed;
-  transform: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  overflow: visible;
+  backdrop-filter: blur(20px);
 }
 
 #btnCapture::before {
@@ -237,51 +266,133 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 72px;
-  height: 72px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 33%, var(--accent) 66%, var(--primary) 100%);
-  background-size: 200% 100%;
-  animation: gradientShift 3s ease-in-out infinite;
-  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.98);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#btnCapture::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#btnCapture:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+#btnCapture:hover::after {
+  opacity: 1;
+}
+
+#btnCapture:active {
+  transform: scale(0.92);
+}
+
+#btnCapture:active::before {
+  width: 52px;
+  height: 52px;
+}
+
+#btnCapture:disabled {
+  background: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 #btnCapture:disabled::before {
-  background: rgba(0, 0, 0, 0.3);
-  animation: none;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
+#btnCapture:disabled::after {
+  opacity: 0;
+}
+
+
+/* Button Base Styles - Modern Apple Design */
 button {
   appearance: none;
-  border: 0;
-  border-radius: 14px;
-  padding: 14px 12px;
-  font-weight: 900;
-  font-size: 1rem;
-  color: var(--bg);
-  background: #e5e7eb;
+  border: none;
+  border-radius: 26px;
+  padding: 14px 24px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #000;
+  background: rgba(255, 255, 255, 0.85);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   touch-action: manipulation;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  min-height: 44px;
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.95);
 }
 
 button:active {
-  transform: scale(0.98);
+  transform: translateY(0) scale(0.97);
 }
 
 button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
 }
 
 .primary {
-  background: linear-gradient(180deg, var(--primary), #16a34a);
-  color: #041007;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #000;
+  border: none;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  font-weight: 700;
+}
+
+.primary:hover {
+  box-shadow: 0 6px 30px rgba(168, 85, 247, 0.4), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
 }
 
 .ghost {
-  background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #000;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  border-radius: 26px;
+  padding: 12px 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-height: 44px;
+}
+
+.ghost:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
 }
 
 .hidden {
@@ -291,11 +402,7 @@ button:disabled {
 /* Chrome Mobile Fix */
 @supports (-webkit-appearance: none) {
   .controls {
-    bottom: max(40px, env(safe-area-inset-bottom, 40px));
-  }
-  
-  .format-toggle-container {
-    bottom: max(40px, env(safe-area-inset-bottom, 40px));
+    bottom: max(24px, env(safe-area-inset-bottom, 24px));
   }
 }
 
@@ -355,7 +462,7 @@ button:disabled {
   }
 }
 
-/* Mobile Optimizations */
+/* Small Mobile Optimizations */
 @media (max-width: 480px) {
   #app {
     padding: 0;
@@ -363,17 +470,65 @@ button:disabled {
   }
   
   .controls {
-    gap: 8px;
-    bottom: max(30px, env(safe-area-inset-bottom, 30px));
+    gap: 12px;
+    bottom: max(20px, env(safe-area-inset-bottom, 20px));
   }
   
-  .format-toggle-container {
-    bottom: max(30px, env(safe-area-inset-bottom, 30px));
+  #controlsLive {
+    gap: 14px;
+  }
+  
+  #controlsResult .controls {
+    gap: 10px;
+  }
+  
+  .format-toggle-inline {
+    min-width: 68px;
+    height: 40px;
+    padding: 7px 14px;
+    font-size: 0.7rem;
   }
   
   button {
-    padding: 12px 10px;
+    padding: 12px 18px;
     font-size: 0.9rem;
+    min-height: 44px;
+  }
+  
+  #btnCapture {
+    width: 68px;
+    height: 68px;
+  }
+  
+  #btnCapture::before {
+    width: 50px;
+    height: 50px;
+  }
+  
+  #btnCapture::after {
+    width: 42px;
+    height: 42px;
+  }
+  
+  .camera-switch-bottom {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .camera-switch-bottom svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .brand {
+    top: 25px;
+    padding: 5px 10px;
+    font-size: clamp(18px, 6vw, 36px);
+  }
+  
+  .toast {
+    padding: 12px 14px;
+    font-size: 13px;
   }
 }
 
@@ -403,15 +558,36 @@ button:disabled {
   100% { transform: rotate(360deg); }
 }
 
-/* Loading Spinner Component */
+/* Loading Spinner Component - Liquid Glass */
 .loading-spinner {
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity var(--transition-smooth);
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: var(--glass-blur-md);
+  background: rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.loading-spinner[data-active="true"] {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .spinner-content {
   text-align: center;
   color: var(--fg);
+  backdrop-filter: var(--glass-blur-lg);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 24px 32px;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  min-width: 200px;
 }
 
 .spinner-icon {
@@ -419,21 +595,24 @@ button:disabled {
 }
 
 .spinner-ring {
-  width: 40px;
-  height: 40px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
+  width: 48px;
+  height: 48px;
+  border: 3px solid var(--glass-border);
   border-top: 3px solid var(--primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  margin: 0 auto;
+  box-shadow: var(--shadow-glow);
 }
 
 .spinner-message {
   font-size: 14px;
   font-weight: 500;
   opacity: 0.9;
+  margin-top: 16px;
 }
 
-/* Toast Notifications */
+/* Toast Notifications - Liquid Glass */
 .toast-container {
   position: fixed;
   top: 20px;
@@ -441,14 +620,22 @@ button:disabled {
   z-index: 10000;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   pointer-events: none;
 }
 
 .toast {
   pointer-events: auto;
   transform: translateX(100%);
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform var(--transition-smooth), opacity var(--transition-smooth);
+  backdrop-filter: var(--glass-blur-md);
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  min-width: 280px;
+  max-width: 400px;
 }
 
 .toast-content {
@@ -458,35 +645,48 @@ button:disabled {
 }
 
 .toast-icon {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
   flex-shrink: 0;
-}
-
-.toast-message {
-  flex: 1;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.toast-close {
-  background: none;
-  border: none;
-  color: inherit;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 0;
   width: 24px;
   height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s ease;
+  background: var(--glass-bg-light);
+  backdrop-filter: var(--glass-blur-sm);
+}
+
+.toast-message {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.toast-close {
+  background: var(--glass-bg-light);
+  border: 1px solid var(--glass-border);
+  color: var(--fg);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+  backdrop-filter: var(--glass-blur-sm);
+  flex-shrink: 0;
 }
 
 .toast-close:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background: var(--glass-bg-medium);
+  border-color: var(--glass-border-strong);
+  transform: scale(1.1);
 }
 
 /* Enhanced Animations */
@@ -540,33 +740,26 @@ button:disabled {
   transform: scale(1.02);
 }
 
-/* Button Enhancements */
-button {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-button::before {
+/* Button Ripple Effect */
+button:active::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   width: 0;
   height: 0;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  transition: width 0.3s ease, height 0.3s ease;
+  animation: ripple 0.4s ease-out;
 }
 
-button:active::before {
-  width: 200px;
-  height: 200px;
-}
-
-button:disabled::before {
-  display: none;
+@keyframes ripple {
+  to {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+  }
 }
 
 /* Capture Animation */
@@ -584,58 +777,200 @@ button:disabled::before {
   animation: pulse 0.6s ease-in-out;
 }
 
-/* Format Toggle */
-.format-toggle-container {
-  position: absolute;
-  bottom: calc(max(20px, env(safe-area-inset-bottom, 20px)) + var(--chrome-padding, 0px));
-  left: max(20px, env(safe-area-inset-left, 20px));
-  z-index: 10;
-  margin: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.format-toggle-container.hidden {
-  opacity: 0;
-  transform: translateY(20px);
-  pointer-events: none;
-}
-
-.format-toggle {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  border: 1px solid var(--primary);
+/* Format Toggle - Inline in Controls */
+.format-toggle-inline {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
   border-radius: 20px;
-  padding: 6px 12px;
+  padding: 8px 16px;
   color: #000;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 0.7rem;
+  font-weight: 600;
+  font-size: 0.75rem;
   position: relative;
   overflow: hidden;
-  min-width: 60px;
-  height: 28px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  min-width: 72px;
+  height: 44px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+}
+
+.format-toggle-inline:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.format-toggle-inline:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.format-toggle-inline.state-2lines {
+  background: rgba(255, 255, 255, 0.95);
+  color: #000;
+  border-color: var(--primary);
+  box-shadow: 0 2px 12px rgba(168, 85, 247, 0.2), 0 0 0 1.5px var(--primary);
+}
+
+.format-toggle-inline.state-3lines {
+  background: rgba(255, 255, 255, 0.95);
+  color: #000;
+  border-color: var(--primary);
+  box-shadow: 0 2px 12px rgba(168, 85, 247, 0.2), 0 0 0 1.5px var(--primary);
+}
+
+/* Camera Switch Button - Liquid Glass */
+.camera-switch-container {
+  position: absolute;
+  top: calc(max(20px, env(safe-area-inset-top, 20px)) + var(--chrome-padding, 0px));
+  right: max(20px, env(safe-area-inset-right, 20px));
+  z-index: 10;
+  transition: opacity var(--transition-smooth), transform var(--transition-smooth);
+}
+
+.camera-switch-container.hidden {
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+}
+
+.camera-switch {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--glass-bg-medium);
+  border: 1px solid var(--glass-border);
+  color: var(--fg);
+  cursor: pointer;
+  transition: all var(--transition-smooth);
+  backdrop-filter: var(--glass-blur-md);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.camera-switch::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.camera-switch:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  border-color: var(--glass-border-strong);
+}
+
+.camera-switch:hover::before {
+  opacity: 1;
+}
+
+.camera-switch:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.camera-switch svg {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Camera Switch Button in Bottom Controls - Modern Design */
+.camera-switch-bottom {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.camera-switch-bottom:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.camera-switch-bottom:active {
+  transform: scale(0.92);
+}
+
+.camera-switch-bottom svg {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  z-index: 1;
+  stroke-width: 1.5;
+}
+
+
+/* Legacy format-toggle styles (kept for compatibility) */
+.format-toggle {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 8px 16px;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+  position: relative;
+  overflow: hidden;
+  min-width: 72px;
+  height: 44px;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
 }
 
 .format-toggle:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .format-toggle:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(0) scale(0.97);
 }
 
 .toggle-text {
-  font-size: 0.7rem;
-  font-weight: 700;
-  transition: all 0.3s ease;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   display: block;
+  z-index: 1;
+  color: inherit;
 }
 
 .toggle-text.changing {
@@ -656,27 +991,25 @@ button:disabled::before {
   }
 }
 
-/* Toggle States - Two different gradients */
-.format-toggle.state-2lines {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+/* Toggle States - Modern Design */
+.format-toggle.state-2lines,
+.format-toggle-inline.state-2lines {
+  background: rgba(255, 255, 255, 0.95);
   color: #000;
+  border-color: var(--primary);
+  box-shadow: 0 2px 12px rgba(168, 85, 247, 0.2), 0 0 0 1.5px var(--primary);
 }
 
-.format-toggle.state-3lines {
-  background: linear-gradient(135deg, var(--accent), var(--primary));
+.format-toggle.state-3lines,
+.format-toggle-inline.state-3lines {
+  background: rgba(255, 255, 255, 0.95);
   color: #000;
+  border-color: var(--primary);
+  box-shadow: 0 2px 12px rgba(168, 85, 247, 0.2), 0 0 0 1.5px var(--primary);
 }
 
-/* Result Controls - 3 buttons */
+/* Result Controls - Modern Design */
 #controlsResult .controls {
-  position: absolute;
-  bottom: 0px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   gap: 12px;
 }
 
@@ -684,42 +1017,61 @@ button:disabled::before {
 #controlsResult #btnRestart,
 #controlsResult #btnSave {
   flex: none;
-  padding: 12px 16px;
+  padding: 12px 22px;
   font-size: 0.9rem;
-  border-radius: 25px; /* Einheitliche Rundung */
-  font-weight: 700;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 26px;
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 44px;
 }
 
 #controlsResult #btnRestart {
-  background: rgba(15, 23, 42, 0.9);
-  border: 2px solid var(--fg);
-  color: var(--fg);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #000;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+}
+
+#controlsResult #btnRestart:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
 }
 
 #controlsResult .feature-btn {
-  background: rgba(15, 23, 42, 0.9);
-  border: 2px solid var(--primary);
-  color: var(--fg);
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid var(--primary);
+  color: #000;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(168, 85, 247, 0.2), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+}
+
+#controlsResult .feature-btn:hover {
+  border-color: var(--primary);
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
 }
 
 #controlsResult #btnSave {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
-  border: 2px solid var(--primary);
+  border: none;
   color: #000;
+  box-shadow: 0 4px 20px rgba(168, 85, 247, 0.3), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  font-weight: 700;
 }
 
-.feature-btn:hover {
-  border-color: var(--primary);
-  background: linear-gradient(135deg, var(--card), rgba(34, 197, 94, 0.1));
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+#controlsResult #btnSave:hover {
+  box-shadow: 0 6px 30px rgba(168, 85, 247, 0.4), 0 0 0 0.5px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
 }
 
-.feature-btn:active {
-  transform: translateY(0);
+.feature-btn:active,
+#controlsResult #btnRestart:active,
+#controlsResult #btnSave:active {
+  transform: translateY(0) scale(0.97);
 }
 
 .btn-icon {
@@ -730,8 +1082,9 @@ button:disabled::before {
   font-size: 0.9rem;
 }
 
-/* Mobile Gestures */
+/* Mobile-First Optimizations - Liquid Glass */
 @media (max-width: 768px) {
+  /* Toast adjustments for mobile */
   .toast-container {
     top: 10px;
     right: 10px;
@@ -740,26 +1093,92 @@ button:disabled::before {
   
   .toast {
     max-width: none;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
   }
   
+  /* Touch-friendly buttons */
   button {
-    min-height: 48px; /* Better touch target */
+    min-height: 48px;
+    padding: 14px 18px;
+    font-size: 0.95rem;
   }
   
+  /* Capture button mobile */
+  #btnCapture {
+    width: 70px;
+    height: 70px;
+  }
+  
+  #btnCapture::before {
+    width: 52px;
+    height: 52px;
+  }
+  
+  #btnCapture::after {
+    width: 44px;
+    height: 44px;
+  }
+  
+  /* Controls panel mobile */
   .controls {
-    gap: 12px;
+    gap: 14px;
   }
   
-  .feature-controls {
-    gap: 8px;
+  #controlsLive {
+    gap: 16px;
   }
   
-  .feature-btn {
-    padding: 10px 12px;
+  /* Camera switch button mobile */
+  .camera-switch-bottom {
+    width: 44px;
+    height: 44px;
   }
   
-  .btn-text {
-    font-size: 0.8rem;
+  .camera-switch-bottom svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  #controlsResult .controls {
+    gap: 10px;
+  }
+  
+  #controlsResult .feature-btn,
+  #controlsResult #btnRestart,
+  #controlsResult #btnSave {
+    padding: 12px 18px;
+    font-size: 0.85rem;
+  }
+  
+  /* Format toggle mobile */
+  .format-toggle-inline {
+    min-width: 66px;
+    height: 40px;
+    padding: 6px 12px;
+    font-size: 0.7rem;
+  }
+  
+  .toggle-text {
+    font-size: 0.7rem;
+  }
+  
+  /* Brand mobile */
+  .brand {
+    top: 30px;
+    padding: 6px 12px;
+    font-size: clamp(20px, 7vw, 40px);
+  }
+  
+  /* Loading spinner mobile */
+  .spinner-content {
+    padding: 20px 24px;
+    min-width: 180px;
+  }
+  
+  .spinner-ring {
+    width: 40px;
+    height: 40px;
   }
 }
 

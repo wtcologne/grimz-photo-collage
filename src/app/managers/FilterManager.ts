@@ -78,12 +78,36 @@ export class FilterManager {
     const data = imageData.data;
 
     // Apply adjustments
-    const { brightness = 1, contrast = 1, saturate = 1, hue = 0, grayscale = 0, sepia = 0 } = filter.adjustments;
+    const { 
+      brightness = 1, 
+      contrast = 1, 
+      saturate = 1, 
+      hue = 0, 
+      grayscale = 0, 
+      sepia = 0,
+      colorTemp = 0,
+      redShift = 1,
+      greenShift = 1,
+      blueShift = 1
+    } = filter.adjustments;
 
     for (let i = 0; i < data.length; i += 4) {
       let r = data[i];
       let g = data[i + 1];
       let b = data[i + 2];
+
+      // Color temperature adjustment (before other adjustments)
+      // Cool (positive): reduce red, enhance blue
+      // Warm (negative): enhance red, reduce blue
+      if (colorTemp !== 0) {
+        r *= (1 - colorTemp * 0.5);
+        b *= (1 + colorTemp * 0.5);
+      }
+
+      // Channel-specific shifts (subtle color grading)
+      r *= redShift;
+      g *= greenShift;
+      b *= blueShift;
 
       // Brightness
       r *= brightness;
@@ -103,7 +127,7 @@ export class FilterManager {
         b = gray + saturate * (b - gray);
       }
 
-      // Hue rotation
+      // Hue rotation (only if explicitly set, not for cool/warm)
       if (hue !== 0) {
         const cos = Math.cos(hue * Math.PI / 180);
         const sin = Math.sin(hue * Math.PI / 180);
@@ -121,14 +145,15 @@ export class FilterManager {
         b = b + (gray - b) * (grayscale / 100);
       }
 
-      // Sepia
+      // Sepia (adjust intensity based on value)
       if (sepia > 0) {
+        const sepiaAmount = sepia > 1 ? sepia / 100 : sepia;
         const tr = 0.393 * r + 0.769 * g + 0.189 * b;
         const tg = 0.349 * r + 0.686 * g + 0.168 * b;
         const tb = 0.272 * r + 0.534 * g + 0.131 * b;
-        r = r + (tr - r) * (sepia / 100);
-        g = g + (tg - g) * (sepia / 100);
-        b = b + (tb - b) * (sepia / 100);
+        r = r + (tr - r) * sepiaAmount;
+        g = g + (tg - g) * sepiaAmount;
+        b = b + (tb - b) * sepiaAmount;
       }
 
       // Clamp values
